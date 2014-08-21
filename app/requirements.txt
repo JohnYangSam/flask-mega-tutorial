@@ -1,0 +1,14 @@
+flask
+flask-login
+flask-openid
+flask-mail
+sqlalchemy
+alembic
+flask-sqlalchemy
+flask-migrate
+#sqlalchemy-migrate
+flask-whooshalchemy
+flask-wtf
+pytz
+flask-babel
+flup
