@@ -18,6 +18,7 @@ function set_openid(openid, pr) {
 <h1>Sign in</h1>
 <form action="" method="post" name="login">
     {{form.hidden_tag()}}
+        <!--- TODO: put back
     <p>
         Please enter your OpenID:<br/>
         {{form.openid(size=80)}}<br />
@@ -26,6 +27,28 @@ function set_openid(openid, pr) {
         {% endfor %}
         |{% for pr in providers %}
         <a href="javascript:set_openid('{{pr.url}}', '{{pr.name}}');">{{pr.name}}</a> |
+        {% endfor %}
+    </p>
+        -->
+    <p>
+        Please enter your nickname:<br />
+        {{form.nickname(size=80)}}<br />
+        {% for error in form.errors.nickname %}
+        <span style="color:red;">[{{error}}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        Password:
+        {{form.password(size=80)}}<br />
+        {% for error in form.errors.password %}
+        <span style="color:red;">[{{error}}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        Email (if registering):
+        {{form.email(size=80)}}<br />
+        {% for error in form.errors.email %}
+        <span style="color:red;">[{{error}}]</span>
         {% endfor %}
     </p>
     <p>{{form.remember_me}} Remember Me</p>

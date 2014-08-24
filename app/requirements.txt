@@ -12,3 +12,4 @@ flask-wtf
 pytz
 flask-babel
 flup
+passlib
