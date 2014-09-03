@@ -8,6 +8,7 @@ CSRF_ENABLED = True
 SECRET_KEY = "adskfjskS()#Jkl4"
 
 
+'''
 # OpenID Configuration
 OPEN_ID_PROVIDERS = [
     {'name': 'Google', 'url': 'https://www.google.com/accounts/o8/id'},
@@ -16,6 +17,7 @@ OPEN_ID_PROVIDERS = [
     {'name': 'Flickr', 'url': 'http://www.flickr.com/<username>'},
     {'name': 'MyOpenID', 'url': 'https://www.myopenid.com'}
 ]
+'''
 
 # Database Configuration
 import os
