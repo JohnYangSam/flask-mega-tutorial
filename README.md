@@ -5,3 +5,4 @@ flask-mega-tutorial
 
 Notes:
   - Flask-Migrate with alembic
+  - Standard logins and passwords instead of OpenID
