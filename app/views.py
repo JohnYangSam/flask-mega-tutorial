@@ -1,8 +1,9 @@
 from flask import (render_template, flash, redirect, session, url_for, request, g)
 from flask.ext.login import login_user, logout_user, current_user, login_required
-from app import app, db, lm, oid
-from forms import LoginForm
+from app import app, db, lm
+from forms import LoginForm, RegistrationForm
 from models import User, ROLE_USER, ROLE_ADMIN
+
 
 # Homepage
 @app.route('/')
@@ -38,57 +39,86 @@ def before_request():
 
 
 @app.route('/login', methods=['GET', 'POST'])
-@oid.loginhandler
 def login():
     # 'g' is the place to store & share data through the lifecycle of a request
     if g.user is not None and g.user.is_authenticated():
         return redirect(url_for('index'))
     form = LoginForm()
     if form.validate_on_submit():
+        flash('Successfully logged in as %s' % form.user.username)
         # session stores data for any future requests of the client
         # flask keeps a session file for each application client
+
         session['remember_me'] = form.remember_me.data
-        nickname = form.nickname.data
-        password = form.password.data
+        # Setup the remember_me from the session
+        # TODO: what exactly this is doing
+        remember_me = False
+        if 'remember_me' in session:
+            remember_me = session['remember_me']
+            # dict.pop(key, default) removes the key and ret val or default
+            session.pop('remember_me', None)
+
+        login_user(form.user, remember=remember_me)
+        # 'next' request arg is automatically set by flask login when
+        # @lm.login_required decorator is used
+        return redirect(request.args.get('next') or url_for('index'))
+
+    return render_template('login.html',
+                           title='Sign In',
+                           form=form)
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    # 'g' is the place to store & share data through the lifecycle of a request
+    if g.user is not None and g.user.is_authenticated():
+        flash('You are already logged in. Log out to create a new account.')
+        return redirect(request.args.get('next') or url_for('index'))
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        # session stores data for any future requests of the client
+        # flask keeps a session file for each application client
+
+        username = form.username.data
         email = form.email.data
+        password = form.password.data
 
-        # Checking basics
-        if nickname is None or nickname == "":
-            form.errors.nickname.append('Must enter a nickname')
-            return redirect(url_for('login'))
-        if password is None:
-            form.errors.password.append("Must enter a password")
-            return redirect(url_for('login'))
+        # All checks have passed = create a new user
+        user = User(username=username,
+                    email=email,
+                    role=ROLE_USER)
+        user.hash_password(password)
 
-        # Check if login / registration
-        user = User.query.filter_by(nickname=nickname).first()
+        db.session.add(user)
+        db.session.commit()
+
+        # TODO: Errors commiting? This may be repetitive
+        # get ther user again
+        user = User.query.filter_by(username=username).first()
         if user is None:
-            if (email is None or email == ""):
-                flash('Please enter a valid email to register')
-                return redirect(url_for('login'))
+            flash("There was an error registering.")
+            return redirect(url_for('register'))
 
-            user = User(nickname=nickname,
-                        email=email,
-                        role=ROLE_USER)
-            db.session.add(user)
-            db.session.commit()
-
+        # Setup the remember_me from the session
         remember_me = False
         if 'remember_me' in session:
             remember_me = session['remember_me']
             session.pop('remember_me', None)
         login_user(user, remember=remember_me)
-        # 'next' request arg is automatically set by flask login when
-        # @lm.login_required decorator is used
+
+        print("Should redirect to main")
         return redirect(request.args.get('next') or url_for('index'))
 
+    print("Should be going back to register")
+    return render_template('register.html',
+                           title='Register',
+                           form=form)
 
-        # TODO: Put back
-        #return oid.try_login(form.openid.data, ask_for=['nickname', 'email'])
-    return render_template('login.html',
-                           title='Sign In',
-                           form=form,
-                           providers=app.config['OPEN_ID_PROVIDERS'])
+
+@app.route('/logout', methods=['GET', 'POST'])
+def logout():
+    logout_user()
+    return redirect(request.args.get('next') or url_for('index'))
 
 
 # Login logic
@@ -96,26 +126,3 @@ def login():
 def load_user(id):
     # Flask-Login ids are unicode strings, hence conversion
     return User.query.get(int(id))
-
-
-@oid.after_login
-def after_login(resp):
-    if resp.email is None or resp.email == "":
-        flash('Invalid login. Please try again.')
-        return redirect(url_for('login'))
-    user = User.query.filter_by(email=resp.email).first()
-    if user is None:
-        nickname = resp.nickname
-        if nickname is None or nickname == "":
-            nickname = resp.email.split('@')[0]
-        user = User(nickname=nickname, email=resp.email, role=ROLE_USER)
-        db.session.add(user)
-        db.session.commit()
-    remember_me = False
-    if 'remember_me' in session:
-        remember_me = session['remember_me']
-        session.pop('remember_me', None)
-    login_user(user, remember=remember_me)
-    # 'next' request arg is automatically set by flask login when
-    # @lm.login_required decorator is used
-    return redirect(request.args.get('next') or url_for('index'))

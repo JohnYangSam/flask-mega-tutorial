@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Register</h1>
+<form action="" method="post" name="register">
+    {{form.hidden_tag()}}
+        Please enter a username:<br />
+        {{form.username(size=80)}}<br />
+        {% for error in form.errors.username %}
+        <span style="color:red;">[{{error}}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        Email:
+        {{form.email(size=80)}}<br />
+        {% for error in form.errors.email %}
+        <span style="color:red;">[{{error}}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        Password:
+        {{form.password(size=80)}}<br />
+        {% for error in form.errors.password %}
+        <span style="color:red;">[{{error}}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        Password Confirmation:
+        {{form.password_confirmation(size=80)}}<br />
+        {% for error in form.errors.password_confirmation %}
+        <span style="color:red;">[{{error}}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{form.accept_tos}} I accept the terms of service.
+        {% for error in form.errors.accept_tos %}
+        <span style="color:red;">[{{error}}]</span>
+        {% endfor %}
+    </p>
+    <p>{{form.remember_me}} Remember Me</p>
+    <p><input type="submit" value="Register"></p>
+    {{form.csrf_token}}
+</form>
+{% endblock %}

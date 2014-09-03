@@ -18,7 +18,7 @@ from config import basedir
 lm = LoginManager()
 lm.init_app(app)
 lm.login_view = 'login'
-oid = OpenID(app, os.path.join(basedir, 'tmp'))
+#oid = OpenID(app, os.path.join(basedir, 'tmp'))
 
 # Need to import these for the flask app to
 # access them

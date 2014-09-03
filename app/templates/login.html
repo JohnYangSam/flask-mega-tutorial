@@ -1,39 +1,12 @@
 {% extends "base.html" %}
 
 {% block content %}
-<script type="text/javascript">
-function set_openid(openid, pr) {
-    /* Grab the '<username>' string in the openid url */
-    var u = openid.search('<username>');
-    if (u != -1) { // We found the '<username>' string
-        // openid requires a username
-        var user = prompt("Enter your " + pr + " username:");
-        openid = openid.substr(0, u) + user; /* append username */
-    }
-    form = document.forms['login'];
-    form.elements['openid'].value = openid; /* Set the new openid */
-}
-</script>
-
-<h1>Sign in</h1>
+<h1>Sign in or <a href='{{url_for('register')}}'>Register here</a></h1>
 <form action="" method="post" name="login">
     {{form.hidden_tag()}}
-        <!--- TODO: put back
-    <p>
-        Please enter your OpenID:<br/>
-        {{form.openid(size=80)}}<br />
-        {% for error in form.errors.openid %}
-        <span style="color:red;">[{{error}}]</span>
-        {% endfor %}
-        |{% for pr in providers %}
-        <a href="javascript:set_openid('{{pr.url}}', '{{pr.name}}');">{{pr.name}}</a> |
-        {% endfor %}
-    </p>
-        -->
-    <p>
-        Please enter your nickname:<br />
-        {{form.nickname(size=80)}}<br />
-        {% for error in form.errors.nickname %}
+        Please enter your username or email:<br />
+        {{form.username(size=80)}}<br />
+        {% for error in form.errors.username %}
         <span style="color:red;">[{{error}}]</span>
         {% endfor %}
     </p>
@@ -44,14 +17,8 @@ function set_openid(openid, pr) {
         <span style="color:red;">[{{error}}]</span>
         {% endfor %}
     </p>
-    <p>
-        Email (if registering):
-        {{form.email(size=80)}}<br />
-        {% for error in form.errors.email %}
-        <span style="color:red;">[{{error}}]</span>
-        {% endfor %}
-    </p>
     <p>{{form.remember_me}} Remember Me</p>
     <p><input type="submit" value="Sign In"></p>
+    {{form.csrf_token}}
 </form>
 {% endblock %}
